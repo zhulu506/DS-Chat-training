@@ -210,6 +210,12 @@ def parse_args():
                         help='Prints loss at each step.')
     parser = deepspeed.add_config_arguments(parser)
     args = parser.parse_args()
+    
+    # Validate settings
+    if args.gradient_checkpointing and args.lora_dim > 0:
+        assert (
+            not args.only_optimize_lora
+        ), "--gradient_checkpointing and --only_optimize_lora cannot be enabled at the same time."
 
     return args
 
@@ -339,6 +345,8 @@ def main():
             f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Micro Batches {len(train_dataloader)}",
             args.global_rank)
         model.train()
+        pause_steps = 100   # 每 pause_steps 个 step 暂停训练
+        step_start_time = time.time()  # Start time for pause_steps tracking
         for step, batch in enumerate(train_dataloader):
             start = time.time()
             batch = to_device(batch, device)
@@ -351,9 +359,32 @@ def main():
             model.backward(loss)
             model.step()
             end = time.time()
+            # Log max memory usage and reset memory stats
+            max_memory_reserved = torch.cuda.max_memory_reserved(device=device)
+            max_memory_allocated = torch.cuda.max_memory_allocated(device=device)
+            memory_utilization = (max_memory_allocated / max_memory_reserved) * 100 if max_memory_reserved > 0 else 0.0
             if torch.distributed.get_rank() == 0:
                 print_throughput(model.model, args, end - start,
                                  args.global_rank)
+                print(f"Step: {step}, Max Memory Reserved: {max_memory_reserved / (1024 * 1024):.2f} MB, "
+                      f"Max Memory Allocated: {max_memory_allocated / (1024 * 1024):.2f} MB, "
+                      f"Memory Utilization: {memory_utilization:.2f}%")
+            
+            # Every 10 steps, log memory summary
+            if (step + 1) % 10 == 0 and torch.distributed.get_rank() == 0:
+                print(f"CUDA Memory Summary at Step {step}:\n{torch.cuda.memory_summary(device=device)}")
+            # torch.cuda.reset_peak_memory_stats(device=device)
+            
+            # After pause_steps steps, log total time and throughput, then terminate
+            if (step + 1) % pause_steps == 0:
+                step_end_time = time.time()
+                elapsed_time = step_end_time - step_start_time
+                total_batch_size = args.per_device_train_batch_size * args.gradient_accumulation_steps * pause_steps
+                throughput = total_batch_size / elapsed_time
+                if torch.distributed.get_rank() == 0:
+                    print(f"Completed {pause_steps} steps in {elapsed_time:.2f} seconds.")
+                    print(f"Throughput: {throughput:.2f} samples/second.")
+                return
 
 if __name__ == "__main__":
     main()
