@@ -30,6 +30,9 @@ run_benchmark() {
             # 提示当前运行的任务信息
             echo "Running GMLake Pro Max: Model=${MODEL}, BS=${BS}, L=${L}, R=${R}, O=${O}"
 
+            # 清除环境变量
+            unset PYTORCH_CUDA_ALLOC_CONF
+
             # 调用 finetune.sh 脚本，启用 GMLake
             bash training_scripts/finetune.sh ${GPU_NUM} ${BS} ${MODEL} True ${L} ${R} ${O}
         done

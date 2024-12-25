@@ -30,6 +30,9 @@ run_benchmark() {
             # 提示当前运行的任务信息
             echo "Running PyTorch Benchmark with Expandable Segments: Model=${MODEL}, BS=${BS}, L=${L}, R=${R}, O=${O}"
 
+            # 清除环境变量
+            unset PYTORCH_CUDA_ALLOC_CONF
+
             # 设置环境变量以启用 PyTorch expandable 功能
             export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 
