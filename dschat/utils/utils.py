@@ -90,6 +90,29 @@ def get_tokenizer(model_name_or_path, fast_tokenizer=True):
         tokenizer.padding_side = 'right'
     return tokenizer
 
+# def load_hf_tokenizer(model_name_or_path,
+#                       fast_tokenizer=True,
+#                       add_special_tokens=None):
+#     if os.path.exists(model_name_or_path):
+#         # Locally tokenizer loading has some issue, so we need to force download
+#         model_json = os.path.join(model_name_or_path, "config.json")
+#         if os.path.exists(model_json):
+#             model_json_file = json.load(open(model_json))
+#             model_name = model_json_file.get("_name_or_path",
+#                                              model_name_or_path)
+#             tokenizer = get_tokenizer(model_name,
+#                                       fast_tokenizer=fast_tokenizer)
+#     else:
+#         tokenizer = get_tokenizer(model_name_or_path,
+#                                   fast_tokenizer=fast_tokenizer)
+
+#     if add_special_tokens is not None:
+#         add_special_tokens = [add_special_tokens] if isinstance(add_special_tokens, str) \
+#             else add_special_tokens
+#         tokenizer.add_special_tokens(
+#             {'additional_special_tokens': add_special_tokens})
+
+#     return tokenizer
 
 def load_hf_tokenizer(model_name_or_path,
                       fast_tokenizer=True,
@@ -103,6 +126,9 @@ def load_hf_tokenizer(model_name_or_path,
                                              model_name_or_path)
             tokenizer = get_tokenizer(model_name,
                                       fast_tokenizer=fast_tokenizer)
+        else:
+            raise FileNotFoundError(
+                f"Configuration file 'config.json' not found in {model_name_or_path}.")
     else:
         tokenizer = get_tokenizer(model_name_or_path,
                                   fast_tokenizer=fast_tokenizer)

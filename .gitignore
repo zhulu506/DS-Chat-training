@@ -137,6 +137,8 @@ outputs/
 *.h5
 
 # by zjma
-/step1_supervised_finetuning/facebook/
 /step1_supervised_finetuning/Dahoas/
-/step1_supervised_finetuning/yitingxie
+/step1_supervised_finetuning/yitingxie/
+/step1_supervised_finetuning/facebook/
+/step1_supervised_finetuning/openai-community/
+/step1_supervised_finetuning/EleutherAI/

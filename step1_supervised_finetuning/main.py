@@ -364,7 +364,11 @@ def main():
             max_memory_allocated = torch.cuda.max_memory_allocated(device=device)
             memory_utilization = (max_memory_allocated / max_memory_reserved) * 100 if max_memory_reserved > 0 else 0.0
             if torch.distributed.get_rank() == 0:
-                print_throughput(model.model, args, end - start,
+                # 复现 EleutherAI/gpt-neo-125m 时遇到一个报错 AttributeError: 'DeepSpeedEngine' object has no attribute 'model'
+                # 将 model.model 替换为 model.module 可以解决这个问题。
+                # print_throughput(model.model, args, end - start,
+                #                  args.global_rank)
+                print_throughput(model.module, args, end - start,
                                  args.global_rank)
                 print(f"Step: {step}, Max Memory Reserved: {max_memory_reserved / (1024 * 1024):.2f} MB, "
                       f"Max Memory Allocated: {max_memory_allocated / (1024 * 1024):.2f} MB, "
