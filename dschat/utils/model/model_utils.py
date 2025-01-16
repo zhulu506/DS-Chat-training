@@ -88,7 +88,7 @@ def create_hf_model(model_class,
                     ds_config=None,
                     rlhf_training=False,
                     dropout=None):
-    model_config = AutoConfig.from_pretrained(model_name_or_path)
+    model_config = AutoConfig.from_pretrained(model_name_or_path, trust_remote_code=True) # 添加 trust_remote_code=True
     configure_dropout(model_config, dropout)
 
     # Note: dschf is defined in function scope to avoid global effects
@@ -104,7 +104,7 @@ def create_hf_model(model_class,
         model = model_class.from_pretrained(
             model_name_or_path,
             from_tf=bool(".ckpt" in model_name_or_path),
-            config=model_config)
+            config=model_config, trust_remote_code=True) # 添加 trust_remote_code=True
 
     model.config.end_token_id = tokenizer.eos_token_id
     model.config.pad_token_id = model.config.eos_token_id

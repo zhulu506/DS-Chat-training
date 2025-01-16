@@ -6,11 +6,11 @@ mkdir -p $OUTPUT_PATH
 deepspeed --num_gpus 1 main.py \
    --data_path Dahoas/rm-static Dahoas/full-hh-rlhf Dahoas/synthetic-instruct-gptj-pairwise yitingxie/rlhf-reward-datasets \
    --data_split 2,4,4 \
-   --model_name_or_path facebook/opt-125m \
+   --model_name_or_path bigscience/bloomz-560m \
    --per_device_train_batch_size 1 \
    --per_device_eval_batch_size 1 \
-   --max_seq_len 512 \
-   --learning_rate 1e-3 \
+   --max_seq_len 256 \
+   --learning_rate 2e-4 \
    --weight_decay 0. \
    --num_train_epochs 16 \
    --gradient_accumulation_steps 1 \
@@ -20,6 +20,6 @@ deepspeed --num_gpus 1 main.py \
    --gradient_checkpointing \
    --zero_stage 3 \
    --lora_dim 128 \
-   --lora_module_name decoder.layers. \
+   --lora_module_name transformer.h. \
    --deepspeed \
    --output_dir $OUTPUT_PATH \

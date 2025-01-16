@@ -142,3 +142,8 @@ outputs/
 /step1_supervised_finetuning/facebook/
 /step1_supervised_finetuning/openai-community/
 /step1_supervised_finetuning/EleutherAI/
+/step1_supervised_finetuning/bigscience/
+/step1_supervised_finetuning/Salesforce/
+/step1_supervised_finetuning/HuggingFaceTB/
+/step1_supervised_finetuning/TinyLlama/
+/step1_supervised_finetuning/Qwen/
