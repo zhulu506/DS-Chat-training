@@ -8,6 +8,7 @@
   - [第 3 次提交](#第-3-次提交)
   - [第 4 次提交](#第-4-次提交)
   - [第 5 次提交](#第-5-次提交)
+  - [第 6 次提交](#第-6-次提交)
 
 ## 第 1 次提交
 
@@ -94,6 +95,7 @@ bash training_scripts/my_test/run_opt-125m.sh
 | MobileLLM-125M | 125M | [facebook/MobileLLM-125M](https://hf-mirror.com/facebook/MobileLLM-125M) |
 | MobileLLM-350M | 350M | [facebook/MobileLLM-350M](https://hf-mirror.com/facebook/MobileLLM-350M) |
 | Qwen1.5-0.5B-Chat | 0.5B | [Qwen/Qwen1.5-0.5B-Chat](https://hf-mirror.com/Qwen/Qwen1.5-0.5B-Chat) |
+| Qwen2.5-0.5B-Instruct-GPTQ-Int8 | 0.5B | [Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8](https://hf-mirror.com/Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8) |
 | SmolLM2-135M | 135M | [HuggingFaceTB/SmolLM2-135M](https://hf-mirror.com/HuggingFaceTB/SmolLM2-135M) |
 | TinyLlama-1.1B-Chat-v1.0 | 1.1B | [TinyLlama/TinyLlama-1.1B-Chat-v1.0](https://hf-mirror.com/TinyLlama/TinyLlama-1.1B-Chat-v1.0) |
 
@@ -254,3 +256,21 @@ def create_hf_model(model_class,
 7、新增了模型 `TinyLlama/TinyLlama-1.1B-Chat-v1.0` 的训练脚本 `training_scripts/my_test/run_TinyLlama.sh`。
 
 8、为了方便看到 `training_scripts/my_test` 里模型复现的结果，删掉了 `&> $OUTPUT_PATH/training.log`，使结果可以直接在终端显示。
+
+## 第 6 次提交
+
+解决复现 `Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8` 时出现的报错：
+
+1、`ModuleNotFoundError: No module named 'optimum'` -> `pip install optimum`。
+
+2、`importlib.metadata.PackageNotFoundError: auto-gptq` -> `pip install auto-gptq`。
+
+3、`ValueError: '.half()' is not supported for quantized model. Please use the model as it is, since the model has already been casted to the correct 'dtype'.`
+
+修改`dschat/utils/ds_utils.py`：
+
+```python
+if dtype == "fp16":
+        data_type = "fp16"
+        dtype_config = {"enabled": True, "loss_scale_window": 100} # 改为 "enabled": False
+```
